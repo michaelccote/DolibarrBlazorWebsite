@@ -1,0 +1,40 @@
+﻿@using VincentsShop.WASM.Shared.Models;
+@using VincentsShop.WASM.Shared.Controllers;
+@inject DolibarrService Client;
+
+@page "/fournisseurs"
+
+<h1>Fournisseurs</h1>
+
+<p>Voici une liste de nos fournisseurs</p>
+
+<div class="main">
+    <ul class="client-cards">
+        @if (fournisseurs != null)
+        {
+            @foreach (ThirdParty fournisseur in fournisseurs)
+            {
+                <li>
+                    <div class="client-info">
+                        <span class="name">@fournisseur.name</span>
+                        <span class="address">@fournisseur.address</span>
+                        <span class="zip">@fournisseur.zip</span>
+                        <span class="town">@fournisseur.town</span>
+                        <span class="state">@fournisseur.state</span>
+                        <span class="country">@fournisseur.country</span>
+                    </div>
+                </li>
+            }
+        }
+    </ul>
+</div>
+
+    @code {
+    private ThirdParty[] fournisseurs;
+
+    protected override async Task OnInitializedAsync()
+    {
+        fournisseurs = await Client.GetFournisseursAsync();
+    }
+
+}

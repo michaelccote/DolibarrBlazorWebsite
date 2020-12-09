@@ -1,0 +1,41 @@
+﻿@using VincentsShop.WASM.Shared.Models;
+@using VincentsShop.WASM.Shared.Controllers;
+@inject DolibarrService Client;
+
+@page "/clients"
+
+<h1>Clients</h1>
+
+<p>Voici une liste de nos clients</p>
+
+<div class="main">
+    <ul class="client-cards">
+        @if (clients != null)
+        {
+            @foreach (ThirdParty client in clients)
+            {
+                <li>
+                    <div class="client-info">
+                        <span class="name">@client.name</span>
+                        <span class="address">@client.address</span>
+                        <span class="title">@client.zip</span>
+                        <span class="title">@client.town</span>
+                        <span class="title">@client.state</span>
+                        <span class="price">@client.country</span>
+                    </div>
+                </li>
+            }
+        }
+    </ul>
+</div>
+
+
+    @code {
+    private ThirdParty[] clients;
+
+    protected override async Task OnInitializedAsync()
+    {
+        clients = await Client.GetClientsAsync();
+    }
+
+}

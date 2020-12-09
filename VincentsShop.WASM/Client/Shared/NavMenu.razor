@@ -1,0 +1,61 @@
+﻿@using VincentsShop.WASM.Shared.Models;
+@using VincentsShop.WASM.Shared.Controllers;
+@inject DolibarrService Client;
+
+<div class="top-row pl-4 navbar navbar-dark">
+    <img class="navbar-brand center" src="/img/logo.png" width="50" height="50">
+    <button class="navbar-toggler" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <ul class="nav flex-column">
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="home" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Page d'accueil
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="information">
+                <span class="oi oi-plus" aria-hidden="true"></span> Informations
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="categories">
+                <span class="oi oi-plus" aria-hidden="true"></span> Nos Produits
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="commandes">
+                <span class="oi oi-plus" aria-hidden="true"></span> Mes commandes
+            </NavLink>
+        </li>
+@*        @foreach(Category category in categories)
+        {
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="@category.label">
+                    <span class="oi oi-plus" aria-hidden="true"></span> @category.label
+                </NavLink>
+            </li>
+        }*@
+    </ul>
+</div>
+
+@code {
+    private Category[] categories;
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await Client.GetCategoriesAsync();
+    }
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+}

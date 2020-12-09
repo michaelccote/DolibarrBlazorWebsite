@@ -1,0 +1,51 @@
+﻿@using VincentsShop.WASM.Shared.Controllers
+@using VincentsShop.WASM.Client.Services
+@inject OrderState OrderState
+@inject DolibarrService Client
+
+<div class="orderbar">
+    @if (OrderState.configuringOrder.lines.Any())
+    {
+        <div class="order-contents">
+            <h2>Votre panier</h2>
+
+            @foreach (OrderLine orderLineInOrder in OrderState.configuringOrder.lines)
+            {
+                <OrderItem orderLine="orderLineInOrder" OnRemoved="@(() => OrderState.RemoveProductFromOrder(orderLineInOrder))" />
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-cart">Sélectionnez un <br>produit pour<br> débuter</div>
+    }
+    
+    <div class="order-total @(OrderState.configuringOrder.lines.Any() ? "" : "hidden")">
+        Total:
+        <span class="total-price">@OrderState.configuringOrder.lines.Sum(x => decimal.Parse(x.total_ht))</span>
+        <button class="btn btn-warning" disabled="@(OrderState.configuringOrder.lines.Count == 0)" @onclick="PlaceOrder">
+            Commander >
+        </button>
+    </div>
+</div>
+
+@code {
+    ThirdParty[] clients;
+
+    protected override  void OnInitialized()
+    {
+        //OrderState.ResetOrder();
+    }
+
+    async Task PlaceOrder()
+    {
+        //Valider si les lignes de la commandes sont bien complètes
+        clients = await Client.GetClientsAsync();
+        OrderState.configuringOrder.socid = clients[0].@ref;
+        OrderState.configuringOrder.SetEpochOrderDate();
+        OrderState.configuringOrder.FinalizeOrder();
+        bool success = await Client.PostOrderAsync(OrderState.configuringOrder);
+        //await HttpClient.PostAsJsonAsync("orders", order);
+        if (success) { OrderState.ResetOrder(); };
+    }
+}

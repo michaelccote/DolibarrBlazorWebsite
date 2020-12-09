@@ -1,0 +1,85 @@
+﻿@using VincentsShop.WASM.Shared.Models;
+@using VincentsShop.WASM.Shared.Controllers;
+@inject DolibarrService Client;
+
+@page "/information"
+
+@if (compagny == null)
+{
+    <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+}
+else
+{
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <title>Page Title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="../wwwroot/css/app.css">
+    </head>
+    <body>
+
+        <div class="header">
+            <h1>Chez Vincents</h1>
+            <p>Une <b>experience</b> Incomparable</p>
+        </div>
+
+
+        <div class="row">
+            <div class="side">
+                <h2><b>Contactez-nous</b></h2>
+                <br />
+
+                <h3>Adresse Local:</h3>
+                <p>@compagny.address, @compagny.town, @compagny.state, @compagny.country </p>
+                <br />
+
+                <h3>Code Postal:</h3>
+                <p>@compagny.zip</p>
+                <br />
+
+                <h3>Numéro de téléphone:</h3>
+                <p>@compagny.phone</p>
+                <br />
+
+                <h3>Adresse Courriel:</h3>
+                <p>@compagny.email</p>
+
+
+
+
+            </div>
+            <div class="main">
+                <h2><b>Ici pour vous servir</b></h2>
+                <h5>Fournisseur depuis 1996</h5>
+                <p>Depuis déjà plus de 25 ans notre équipe prends soin de ses clients. </p>
+                <p>Avec plus de quarantes produits discponible chez nous, il vous est impossible de ne pas trouver tout ce dont vous désirez. Nous sommes les revendeurs les plus compétitifs sur le marché et grâce à nos offres exceptionnels! </p>
+                <br>
+                <h2><b>Une équipe qui se tient</b></h2>
+                <p>Nous sommes là pour vous servir et pour vous offrir la plus grande satisfaction.</p>
+                <h2><b>De la diversité</b></h2>
+                <p>Bien entendu, nous chez Vincents nous avons comprit que la diversité est important. Voilà pourquoi nous offrons une varieté de produits. De l'allimentaire aux outils de construction, chez Vincents nous avons de la diversitée de produit dans une diversité de catégorie! </p>
+                <h2><b>Une entreprise à l'écoute</b></h2>
+                <p>Nous sommes une compagnie qui fait affaire à de multiples fournisseurs et nous sommes prêts à vous écoutez pour apporter les prosuits que vous désirez prêt de chez vous. Donc nésitez pas à nous contacter si nous n'avons pas se que <b>vous</b> voulez</p>
+
+            </div>
+        </div>
+
+
+    </body>
+    </html>
+}
+
+@code {
+    // Reference du Html: https://www.w3schools.com/howto/howto_css_example_website.asp
+
+    private Company compagny;
+
+    protected override async Task OnInitializedAsync()
+    {
+        compagny = await Client.GetCompanyInfoAsync();
+    }
+}

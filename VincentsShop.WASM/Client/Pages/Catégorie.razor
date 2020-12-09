@@ -1,0 +1,100 @@
+﻿@using VincentsShop.WASM.Client.Components
+@using VincentsShop.WASM.Client.Components.Order
+@using VincentsShop.WASM.Shared.Models
+@using VincentsShop.WASM.Shared.Controllers
+@using VincentsShop.WASM.Client.Services
+@inject OrderState OrderState
+@inject DolibarrService Client
+
+
+@if (category == null)
+{
+    <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+}
+else
+{
+<div class="main">
+    <ul class="product-cards">
+        @if (category != null)
+        {
+            @foreach (Product catProd in @category.produits)
+            {
+                @*<FicheProduit produit="catProd" />*@
+                <li @onclick="@(() => OrderState.ShowConfigureOrderDialog(catProd))" style="    background-image: url('@category.getImageUrl()')">
+                <div class="product-info">
+                    <span class="title">@catProd.label</span>
+                        @catProd.description
+                    <span class="price">@catProd.price.ToString("0.00")</span>
+                </div>
+                </li>
+            }
+        }
+    </ul>
+</div>
+
+
+<div class="orderbar">
+    @if (OrderState.configuringOrder.lines.Any())
+    {
+        <div class="order-contents">
+            <h2>Your order</h2>
+
+            @foreach (OrderLine orderLineInOrder in OrderState.configuringOrder.lines)
+            {
+                <OrderItem orderLine="orderLineInOrder" OnRemoved="@(() => OrderState.RemoveProductFromOrder(orderLineInOrder))" />
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-cart">Sélectionnez un <br>produit pour<br> débuter</div>
+    }
+    
+    <div class="order-total @(OrderState.configuringOrder.lines.Any() ? "" : "hidden")">
+        Total:
+        <span class="total-price">@OrderState.configuringOrder.lines.Sum(x => decimal.Parse(x.total_ht))</span>
+        <button class="btn btn-warning" disabled="@(OrderState.configuringOrder.lines.Count == 0)" @onclick="PlaceOrder">
+            Commander >
+        </button>
+    </div>
+</div>
+
+    @if (OrderState.showingConfigureDialog)
+    {
+        <ConfigureOrderDialog orderLine="OrderState.configuringOrderLine" OnCancel="OrderState.CancelConfigureOrderDialog" OnConfirm="OrderState.ConfirmConfigureOrderDialog" />
+        <text></text>
+    }
+}
+
+
+@code {
+    [Parameter]
+    public Category category { get; set; }
+  
+    ThirdParty[] clients;
+
+    protected override  void OnInitialized()
+    {
+        //OrderState.ResetOrder();
+    }
+
+    async Task PlaceOrder()
+    {
+        //Valider si les lignes de la commandes sont bien complètes
+        //string loggedUser = await AuthService.GetLoggedUser();
+        //Usager[] users  = await DolibarrClient.GetUsersAsync();
+        //OrderState.configuringOrder.socid = users.Where(x => x.login == loggedUser).First().socid;
+        clients = await Client.GetClientsAsync();
+        OrderState.configuringOrder.socid = clients[0].@ref;
+        OrderState.configuringOrder.SetEpochOrderDate();
+        OrderState.configuringOrder.FinalizeOrder();
+        bool success = await Client.PostOrderAsync(OrderState.configuringOrder);
+        //await HttpClient.PostAsJsonAsync("orders", order);
+        if (success) { OrderState.ResetOrder(); };
+    }
+
+
+}
+

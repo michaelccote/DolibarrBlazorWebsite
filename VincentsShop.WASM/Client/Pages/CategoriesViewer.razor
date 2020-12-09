@@ -1,0 +1,51 @@
+﻿@using VincentsShop.WASM.Shared.Models
+@using VincentsShop.WASM.Shared.Controllers
+@using VincentsShop.WASM.Client.Services
+@inject DolibarrService Client
+@inject NavigationManager NavigationManager
+@inject OrderState OrderState
+
+@page "/categories"
+
+@if (categories == null)
+{
+    <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+}
+else
+{
+<div class="main">
+    <ul class="product-cards">
+        @if (categories != null)
+        {
+            @foreach (Category category in categories)
+            {
+                @*<FicheProduit produit="catProd" />*@
+                <li href="@category.getUrl()" style="background-image: url('@category.getImageUrl()')">
+                    <a href="@category.getUrl()">
+                        <div class="product-info">
+                            <span class="title">@category.label</span>
+                                @category.description
+                        </div>
+                    </a>
+                </li>
+            }
+        }
+    </ul>
+</div>
+
+}
+
+
+@code {
+    [Parameter]
+    public Category[] categories { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await Client.GetCategoriesAsync();
+    }
+
+}
+

@@ -1,0 +1,43 @@
+﻿@using VincentsShop.WASM.Shared.Models;
+@using VincentsShop.WASM.Shared.Controllers;
+@inject DolibarrService Client;
+
+<div class="dialog-container">
+    <div class="dialog">
+        <div class="dialog-title">
+            <h2>@orderLine.product.label</h2>
+            @orderLine.product.description
+        </div>
+        <form class="dialog-body">
+            <div>
+                <label>Size:</label>
+                <input type="range" min="@minimumOrderQty" max="@orderLine.product.stock_reel" step="1" @bind="@orderLine.qty" @bind:event="oninput" />
+                <span class="size-label">
+                    @orderLine.qty x (@orderLine.product.price.ToString("0.00$"))
+                </span>
+            </div>
+        </form>
+        <div class="dialog-buttons">
+            <button class="btn btn-secondary mr-auto" @onclick="OnCancel">Cancel</button>
+            <span class="mr-center">
+                Price: <span class="price"> @((orderLine.product.price * int.Parse(orderLine.qty)).ToString("0.00"))</span>
+            </span>
+            <button class="btn btn-success ml-auto" @onclick="OnConfirm">Order ></button>
+        </div>
+    </div>
+</div>
+
+        @code {
+    [Parameter] public OrderLine orderLine { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback OnConfirm { get; set; }
+    int minimumOrderQty = 1;
+    ThirdParty[] clients;
+
+    protected override async Task OnInitializedAsync()
+    {
+        clients = await Client.GetClientsAsync();
+    }
+
+    }
+

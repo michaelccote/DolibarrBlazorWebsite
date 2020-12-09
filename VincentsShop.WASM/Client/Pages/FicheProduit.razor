@@ -1,0 +1,31 @@
+﻿<li @onclick="@(() => ShowConfigureOrderDialog(produit))" style="    background-image: url('@produit.image.fullname')">
+    <div class="product-info">
+        <span class="title">@produit.label</span>
+        @produit.description
+        <span class="price">@produit.price.ToString("0.00")</span>
+    </div>
+</li>
+
+    @code{
+    [Parameter]
+    public Product produit { get; set; }
+    Order configuringOrder;
+    bool showingConfigureDialog;
+
+    void ShowConfigureOrderDialog(Product product)
+{
+    configuringOrder = new Order()
+    {
+        //Quantité en stock
+        //Lien vers produit
+        //Lors de l'ouverture du dialog, aller chercher les clients possibles pour le combobox
+
+        //Special = special,
+        //SpecialId = special.Id,
+        //Size = Pizza.DefaultSize,
+        //Toppings = new List<PizzaTopping>(),
+    };
+
+    showingConfigureDialog = true;
+}
+}

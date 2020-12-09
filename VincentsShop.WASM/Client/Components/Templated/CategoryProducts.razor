@@ -1,0 +1,137 @@
+﻿@using VincentsShop.WASM.Client.Components;
+@using VincentsShop.WASM.Client.Components.Order;
+@using VincentsShop.WASM.Shared.Models;
+@using VincentsShop.WASM.Shared.Controllers;
+@inject DolibarrService Client;
+
+@if (category == null)
+{
+    <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+}
+else
+{
+<div class="main">
+    <ul class="product-cards">
+        @if (category != null)
+        {
+            @foreach (Product catProd in @category.produits)
+            {
+                @*<FicheProduit produit="catProd" />*@
+                <li @onclick="@(() => ShowConfigureOrderDialog(catProd))" style="    background-image: url('@catProd.image.fullname')">
+                <div class="product-info">
+                    <span class="title">@catProd.label</span>
+                        @catProd.description
+                    <span class="price">@catProd.price.ToString("0.00")</span>
+                </div>
+                </li>
+            }
+        }
+    </ul>
+</div>
+
+
+<div class="orderbar">
+    @if (configuringOrder.lines.Any())
+    {
+        <div class="order-contents">
+            <h2>Your order</h2>
+
+            @foreach (OrderLine orderLineInOrder in configuringOrder.lines)
+            {
+                <OrderItem orderLine="orderLineInOrder" OnRemoved="@(() => RemoveProductFromOrder(orderLineInOrder))" />
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-cart">Choose a pizza<br>to get started</div>
+    }
+    
+    <div class="order-total @(configuringOrder.lines.Any() ? "" : "hidden")">
+        Total:
+        <span class="total-price">@configuringOrder.lines.Sum(x => decimal.Parse(x.price))</span>
+        <button class="btn btn-warning" disabled="@(configuringOrder.lines.Count == 0)" @onclick="PlaceOrder">
+            Commander >
+        </button>
+    </div>
+</div>
+
+    @if (showingConfigureDialog)
+    {
+        <ConfigureOrderDialog orderLine="configuringOrderLine" OnCancel="CancelConfigureOrderDialog" OnConfirm="ConfirmConfigureOrderDialog" />
+    }
+}
+
+@code {
+
+    [Parameter]
+    public Category category { get; set; }
+
+        Order configuringOrder;
+    OrderLine configuringOrderLine;
+    bool showingConfigureDialog;
+    ThirdParty[] clients;
+
+    protected override  void OnInitialized()
+    {
+        ResetOrder();
+    }
+
+   void ShowConfigureOrderDialog(Product product)
+    {
+        configuringOrderLine = new OrderLine()
+        {
+            //Quantité en stock
+            //Lien vers produit
+            //Lors de l'ouverture du dialog, aller chercher les clients possibles pour le combobox
+            product = product,
+            qty = "1"
+        };
+
+        showingConfigureDialog = true;
+    }
+
+    void CancelConfigureOrderDialog()
+    {
+        configuringOrderLine = null;
+        showingConfigureDialog = false;
+    }
+
+    void ConfirmConfigureOrderDialog()
+    {
+        //2-way data binding pour la quantité. Sinon ici
+        configuringOrderLine.fk_product = configuringOrderLine.product.id.ToString();
+        configuringOrderLine.description = configuringOrderLine.desc = configuringOrderLine.product.description;
+        configuringOrderLine.price = configuringOrderLine.total_ht = (int.Parse(configuringOrderLine.qty) * configuringOrderLine.product.price).ToString("0.00");
+        configuringOrder.lines.Add(configuringOrderLine);
+        configuringOrderLine = null;
+
+        showingConfigureDialog = false;
+    }
+
+    void RemoveProductFromOrder(OrderLine orderLine2Remove)
+    {
+        configuringOrder.lines.Remove(orderLine2Remove);
+    }
+
+
+    async Task PlaceOrder()
+    {
+        //Valider si les lignes de la commandes sont bien complètes
+        clients = await Client.GetClientsAsync();
+        configuringOrder.socid = clients[0].@ref;
+        configuringOrder.SetEpochOrderDate();
+        bool success = await Client.PostOrderAsync(configuringOrder);
+        //await HttpClient.PostAsJsonAsync("orders", order);
+        if (success) { ResetOrder(); };
+    }
+
+    private void ResetOrder()
+    {
+        configuringOrder = new Order();
+        configuringOrder.lines = new List<OrderLine>();
+    }
+
+}

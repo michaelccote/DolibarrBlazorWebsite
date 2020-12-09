@@ -1,0 +1,15 @@
+﻿<div class="cart-item">
+    <a @onclick="OnRemoved" class="delete-item">x</a>
+    <div class="title">@(orderLine.qty)x @orderLine.product.label</div>
+    <ul>
+        <li>@orderLine.product.description</li>
+    </ul>
+    <div class="item-price">
+        @((orderLine.product.price * int.Parse(orderLine.qty)).ToString("0.00"))
+    </div>
+</div>
+
+@code {
+    [Parameter] public OrderLine orderLine { get; set; }
+    [Parameter] public EventCallback OnRemoved { get; set; }
+}

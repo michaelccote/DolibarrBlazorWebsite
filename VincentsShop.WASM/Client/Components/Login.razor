@@ -1,0 +1,101 @@
+﻿@layout CenteredCardLayout
+@using VincentsShop.WASM.Client.Services
+@using VincentsShop.WASM.Shared.Controllers
+@page "/"
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
+@inject DolibarrService DolibarrClient
+
+@if (ShowErrors)
+{
+    <div class="alert alert-danger" role="alert">
+        <p>@Error</p>
+    </div>
+}
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Se connecter</h5>
+        <EditForm Model="loginModel" OnValidSubmit="HandleLogin">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <label for="user">Usager</label>
+                <InputText Id="user" Class="form-control" @bind-Value="loginModel.User" @onfocusout="LoadCompanies" />
+                <ValidationMessage For="@(() => loginModel.User)" />
+            </div>
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <InputText Id="password" type="password" Class="form-control" @bind-Value="loginModel.Password" />
+                <ValidationMessage For="@(() => loginModel.Password)" />
+            </div>
+            <div class="form-group">
+                <label for="company">Compagnie</label>
+                <InputText Id="company" Class="form-control" @bind-Value="userCompany.name" disabled="true"/>
+            </div>
+            <button type="submit" class="btn btn-primary">Se connecter</button>
+            <a href="/register" class="col-3">S'inscrire</a>
+            <a href="/createcompany" class="col-3">Créer compagnie</a>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private ThirdParty userCompany = new ThirdParty();
+    private LoginModel loginModel = new LoginModel();
+    private Usager[] users;
+    private ThirdParty[] clients;
+    private ThirdParty[] fournisseurs;
+
+    private bool ShowErrors;
+    private string Error = "";
+
+    protected override void OnInitialized()
+    {
+        //loginModel.User = "user";
+        //loginModel.Password = "wGZgZ8qSL78V";
+        //loginModel.User = "jean.boutin";
+        //loginModel.Password = "jboutin1";
+        loginModel.User = "clientuser1";
+        loginModel.Password = "passuser1";
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        clients = await DolibarrClient.GetClientsAsync();
+        fournisseurs = await DolibarrClient.GetFournisseursAsync();
+        users = await DolibarrClient.GetUsersAsync();
+    }
+
+    private async Task HandleLogin()
+    {
+        ShowErrors = false;
+
+        var result = await AuthService.Login(loginModel);
+
+        if (result.Successful)
+        {
+            NavigationManager.NavigateTo("/home");
+        }
+        else
+        {
+            Error = result.ErrorMessage;
+            ShowErrors = true;
+        }
+    }
+
+    private void LoadCompanies()
+    {
+        ShowErrors = false;
+        Usager existingUser = users.Where(x => x.login == loginModel.User).FirstOrDefault();
+        if (existingUser == null)
+            return;
+        userCompany = clients.Where(x => x.id == existingUser.societe_id).FirstOrDefault();
+        if (userCompany == null) 
+            userCompany = fournisseurs.Where(x => x.id == existingUser.societe_id).FirstOrDefault();;
+
+    }
+
+
+}

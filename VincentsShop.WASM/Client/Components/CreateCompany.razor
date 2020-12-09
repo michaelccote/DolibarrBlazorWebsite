@@ -1,0 +1,115 @@
+﻿@layout CenteredCardLayout
+@page "/createcompany"
+@using VincentsShop.WASM.Shared.Models
+@using VincentsShop.WASM.Shared.Controllers
+@using VincentsShop.WASM.Client.Services
+@inject DolibarrService DolibarrClient
+@inject NavigationManager NavigationManager
+@inject IAuthService AuthService
+
+@if (ShowErrors)
+{
+    <div class="alert alert-danger" role="alert">
+        <p>@Error</p>
+    </div>
+}
+
+<div class="card">
+    <EditForm Model="company" OnValidSubmit="GenerateClient">
+        <div class="card-body">
+            <h5 class="card-title">Nouvelle compagnie</h5>
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <label for="companyName">Nom</label>
+                <InputText Id="companyName" Class="form-control" @bind-Value="company.name" />
+                <ValidationMessage For="@(() => company.name)" />
+            </div>
+            <div class="form-group">
+                <label for="companyAddress">Adresse</label>
+                <InputText Id="companyAddress" Class="form-control" @bind-Value="company.address" />
+                <ValidationMessage For="@(() => company.address)" />
+            </div>
+            <div class="form-group">
+                <label for="companyZip">Code Postal</label>
+                <InputText Id="companyZip" Class="form-control" @bind-Value="company.zip" />
+                <ValidationMessage For="@(() => company.zip)" />
+            </div>
+            <div class="form-group">
+                <label for="companyTown">Ville</label>
+                <InputText Id="companyTown" Class="form-control" @bind-Value="company.town" />
+                <ValidationMessage For="@(() => company.town)" />
+            </div>
+            <div class="form-group">
+                <label for="companyState">Province/État</label>
+                <InputText Id="companyState" Class="form-control" @bind-Value="company.state" />
+                <ValidationMessage For="@(() => company.state)" />
+            </div>
+            <div class="form-group">
+                <label for="companyCountry">Pays</label>
+                <InputText Id="companyCountry" Class="form-control" @bind-Value="company.country" />
+                <ValidationMessage For="@(() => company.country)" />
+            </div>
+            <div class="form-group">
+                <label for="companyPhone">Téléphone</label>
+                <InputText Id="companyPhone" Class="form-control" @bind-Value="company.phone" />
+                <ValidationMessage For="@(() => company.phone)" />
+            </div>
+            <div class="form-group">
+                <label for="companyEmail">Courriel</label>
+                <InputText Id="companyEmail" Class="form-control" @bind-Value="company.email" />
+                <ValidationMessage For="@(() => company.email)" />
+            </div>
+            <button type="submit" class="btn btn-primary">Créer le client</button>
+            <a href="/register" class="col-3">S'inscrire</a>
+            <a href="/" class="col-3">Se connecter</a>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private ThirdParty company { get; set; }
+    private bool ShowErrors;
+    private string Error = "";
+
+
+    protected override void OnInitialized()
+    {
+        company = new ThirdParty();
+
+        //Valeurs par défaut pour faciliter le débug
+        company.name = "Dollorachat";
+        company.address = "15 boulevard Jean Chretien";
+        company.zip = "G6W 0E4";
+        company.town = "Levis";
+        company.state = "Quebec";
+        company.country = "Canada";
+        company.phone = "+15559996666";
+        company.email = "achats@dollorachat.ca";
+        company.url = "https://dollorachat.ca";
+        company.client = "1";
+        company.prospect = 0;
+        company.fournisseur = "0";
+    }
+
+
+    private async Task GenerateClient()
+    {
+
+        company.FinalizeCreation();
+
+        bool comapnyCreationSuccess = await DolibarrClient.PostThirdPartyAsync(company);
+        if (comapnyCreationSuccess)
+        {
+            NavigationManager.NavigateTo("/register");
+        }
+        else
+        {
+            Error = "Erreur lors de la création de l'entreprise";
+            ShowErrors = true;
+        }
+    }
+
+}
+

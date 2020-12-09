@@ -1,0 +1,157 @@
+﻿@layout CenteredCardLayout
+@page "/register"
+@using VincentsShop.WASM.Shared.Models
+@using VincentsShop.WASM.Shared.Controllers
+@using VincentsShop.WASM.Client.Services
+@inject DolibarrService DolibarrClient
+@inject NavigationManager NavigationManager
+@inject IAuthService AuthService
+
+@if (ShowErrors)
+{
+    <div class="alert alert-danger" role="alert">
+        <p>@Error</p>
+    </div>
+}
+
+<div class="card">
+    <EditForm Model="contact" OnValidSubmit="GenerateClient">
+        <div class="card-body">
+            <h5 class="card-title">Nouvel usager</h5>
+
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <div class="form-group">
+                <label for="userLastName">Nom</label>
+                <InputText Id="userLastName" Class="form-control" @bind-Value="contact.lastname" />
+                <ValidationMessage For="@(() => contact.lastname)" />
+            </div>
+            <div class="form-group">
+                <label for="userFirstName">Prénom</label>
+                <InputText Id="userFirstName" Class="form-control" @bind-Value="contact.firstname" />
+                <ValidationMessage For="@(() => contact.firstname)" />
+            </div>
+            <div class="form-group">
+                <label for="userEmail">Courriel</label>
+                <InputText Id="userEmail" Class="form-control" @bind-Value="contact.email" />
+                <ValidationMessage For="@(() => contact.email)" />
+            </div>
+            <div class="form-group">
+                <label for="user">Usager</label>
+                <InputText Id="user" Class="form-control" @bind-Value="usager.login" />
+                <ValidationMessage For="@(() => usager.login)" />
+            </div>
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <InputText Id="password" type="password" Class="form-control" @bind-Value="usager.password" />
+                <ValidationMessage For="@(() => usager.password)" />
+            </div>
+            <div class="form-group">
+                <label for="passwordConfirmation">Mot de passe</label>
+                <InputText Id="passwordConfirmation" type="password" Class="form-control" @bind-Value="usager.confirmPassword" />
+                <ValidationMessage For="@(() => usager.confirmPassword)" />
+            </div>
+            <div class="form-group">
+                <label for="userCompany">Compagnie</label>
+                @if (clients == null)
+                    {
+                        <select class="custom-select" disabled>
+                            <option>(loading...)</option>
+                        </select>
+                    }
+                    else
+                    {
+                        <select Id="userCompany" class="custom-select" @bind="selectedClient">
+                            <option value="-1" disabled selected>(select)</option>
+                            @for (var i = 0; i < clients.Count(); i++)
+                            {
+                                <option value="@i">@clients[i].name</option>
+                            }
+                        </select>
+                    }
+                    </div>
+                    <button type="submit" class="btn btn-primary">S'inscrire</button>
+                    <a href="/" class="col-3">Se connecter</a>
+                    <a href="/createcompany" class="col-3">Créer compagnie</a>
+                </div>
+            </EditForm>
+        </div>
+
+                @code {
+    private Contact contact { get; set; }
+    private Usager usager { get; set; }
+    private string selectedClient { get; set; }
+    private ThirdParty[] clients { get; set; }
+    private bool ShowErrors;
+    private string Error = "";
+
+
+    protected override void OnInitialized()
+    {
+
+        contact = new Contact();
+        usager = new Usager();
+
+        //Valeurs par défaut pour faciliter le débug
+        contact.lastname = "user";
+        contact.firstname = "client";
+        contact.email = "clientuser1@companyx.com";
+        usager.login = "clientuser1";
+        usager.password = "passuser1";
+        usager.confirmPassword = "passuser1";
+        
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        clients = await DolibarrClient.GetClientsAsync();
+    }
+
+
+    private async Task GenerateClient()
+    {
+        //Aller chercher le ID de la compagnie qu'on vient tout juste de créer afin de l'assigner à l'usager.
+        //ThirdParty addedComapny = clients.Where(x => string.Compare(x.name, selectedClient, true) == 0).FirstOrDefault();
+        //usager.societe_id = addedComapny.id;
+        ShowErrors = false;
+        Error = "";
+        contact.socid = clients[int.Parse(selectedClient)].id;
+        contact.socname = clients[int.Parse(selectedClient)].name;
+        contact.FinalizeCreation();
+        bool contactCreationSuccess = await DolibarrClient.PostContactAsync(contact);
+        if (contactCreationSuccess)
+        {
+            contact = (await DolibarrClient.GetAllContactsAsync()).Where(x => x.socname == contact.socname && x.lastname == contact.lastname && x.firstname == contact.firstname).First();
+            bool userCreationSuccess = await DolibarrClient.PostCreateUserFromContactAsync(contact,usager);
+            if (userCreationSuccess)
+            {
+                LoginModel loginModel = new LoginModel() { User = usager.login, Password = usager.password};
+                LoginResponse result = await AuthService.Login(loginModel);
+
+                if (result.Successful)
+                {
+                    NavigationManager.NavigateTo("/home");
+                }
+                else
+                {
+                    Error = result.ErrorMessage;
+                    ShowErrors = true;
+                }
+            }
+            else
+            {
+                Error = "Erreur lors de la création de l'usager à partir du contact";
+                ShowErrors = true;
+            }
+
+        }
+        else
+        {
+            Error = "Erreur lors de la création du contact pour l'entreprise";
+            ShowErrors = true;
+        }
+
+    }
+
+    }
+

@@ -1,0 +1,56 @@
+﻿@using VincentsShop.WASM.Shared.Models;
+@using VincentsShop.WASM.Shared.Controllers;
+@using VincentsShop.WASM.Client.Services;
+@inject DolibarrService Client;
+@inject OrderState OrderState
+@page "/commandes"
+
+
+<div class="main">
+    @if (orders == null)
+    {
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    }
+    else if (!orders.Any())
+    {
+        <h2>Vous n'avez effectué aucune commande jusqu'à présent</h2>
+    }
+    else
+    {
+        <div class="list-group orders-list">
+            @foreach (Order order in orders)
+            {
+                <div class="list-group-item">
+                    <div class="col">
+                        <h5>@order.GetEpochDateToString()</h5>
+                        Items:
+                        <strong>@order.lines.Count()</strong>;
+                        Total price:
+                        <strong>@order.GetFormattedPrice() $</strong>
+                    </div>
+                    @*            <div class="col">
+                        Status: <strong>@item.StatusText</strong>
+                        </div>
+                        <div class="col flex-grow-0">
+                        <a href="myorders/@item.Order.OrderId" class="btn btn-success">
+                        Track &gt;
+                        </a>
+                        </div>*@
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    Order[] orders;
+    ThirdParty[] clients;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        clients = await Client.GetClientsAsync();
+        orders = await Client.GetOrdersAsync(clients[0]);
+    }
+}
