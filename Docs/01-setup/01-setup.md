@@ -29,11 +29,11 @@ The solution already contains four projects:
 This tells the project that we want to have a Server Project in our solution. This is a better solution for handling security and API calls. 
 
 ###### And why did we check the Progressive Web Application option?
-This option offers the client the possibility of installing this Web app as a Desktop application. For more info on PWA, check out this link.
+This option offers the client the possibility of installing this Web app as a Desktop or Mobile application. For more info on PWA, check out this link.
 
 Once you hit Create, you'll end up with a solution that looks something like this : 
 
-![image](img/00-BlazorApp.png)
+![image](img/03-ProjectTemplate.png)
 
 Here's a definition of each project under your newly created solution : 
 - **MyDolibarrCustomerApp.Client**: This is the Blazor project. It contains the UI components for the app.
