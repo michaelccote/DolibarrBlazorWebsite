@@ -21,15 +21,28 @@ Go ahead and create a new Blazor Project:
 
 The solution already contains four projects:
 
-![image](https://user-images.githubusercontent.com/1874516/77238114-e2072780-6b8a-11ea-8e44-de6d7910183e.png)
+![image](/img/00-BlazorApp.png)
+![image](/img/01-BlazorAppName.png)
+![image](/img/02-BlazorAppWASM.png)
 
+But why did we check the ASP.NET Core hosted option?
+This tells the project that we want to have a Server Project in our solution. This is a better solution for handling security and API calls. 
 
-- **BlazingPizza.Client**: This is the Blazor project. It contains the UI components for the app.
-- **BlazingPizza.Server**: This is the ASP.NET Core project hosting the Blazor app and also the backend services for the app.
-- **BlazingPizza.Shared**: This project contains the shared model types for the app.
-- **BlazingPizza.ComponentsLibrary**: This is a library of components and helper code to be used by the app in later sessions.
+And why did we check the Progressive Web Application option?
+This option offers the client the possibility of installing this Web app as a Desktop application. For more info on PWA, check out this link.
 
-The **BlazingPizza.Server** project should be set as the startup project.
+Once you hit Create, you'll end up with a solution that looks something like this : 
+
+![image](/img/00-BlazorApp.png)
+
+Here's a definition of each project under your newly created solution : 
+- **MyDolibarrCustomerApp.Client**: This is the Blazor project. It contains the UI components for the app.
+- **MyDolibarrCustomerApp.Server**: This is the ASP.NET Core project hosting the Blazor app and also the backend services for the app.
+- **MyDolibarrCustomerApp.Shared**: This project contains the shared model types for the app.
+
+We are going to start things off with the creation of a layout for the login, register user and register client pages. 
+
+The **MyDolibarrCustomerApp.Server** project should be set as the startup project.
 
 When you run the app, you'll see that it currently only contains a simple home page.
 
