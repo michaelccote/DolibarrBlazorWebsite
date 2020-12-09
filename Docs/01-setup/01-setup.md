@@ -25,10 +25,10 @@ The solution already contains four projects:
 ![image](img/01-BlazorAppName.png)
 ![image](img/02-BlazorAppWASM.png)
 
-But why did we check the ASP.NET Core hosted option?
+###### But why did we check the ASP.NET Core hosted option?
 This tells the project that we want to have a Server Project in our solution. This is a better solution for handling security and API calls. 
 
-And why did we check the Progressive Web Application option?
+###### And why did we check the Progressive Web Application option?
 This option offers the client the possibility of installing this Web app as a Desktop application. For more info on PWA, check out this link.
 
 Once you hit Create, you'll end up with a solution that looks something like this : 
