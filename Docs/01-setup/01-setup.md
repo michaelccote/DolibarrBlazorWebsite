@@ -1,15 +1,3 @@
-# Setup
-
-In this session, you'll get started building an Dolibarr-connected website app using Blazor. 
-The app will enable users to : 
-- Create a new Customer (Third-Party) 
-- Create a new Contact/User for a Customer
-- Login
-- View Company info
-- View products by category
-- Order products
-- See order history
-
 ## Starting point
 
 To get started, you'll need to start a new Blazor Web Assembly project from Visual Studio 2019.
