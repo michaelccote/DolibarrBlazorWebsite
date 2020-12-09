@@ -21,9 +21,9 @@ Go ahead and create a new Blazor Project:
 
 The solution already contains four projects:
 
-![image](/img/00-BlazorApp.png)
-![image](/img/01-BlazorAppName.png)
-![image](/img/02-BlazorAppWASM.png)
+![image](img/00-BlazorApp.png)
+![image](img/01-BlazorAppName.png)
+![image](img/02-BlazorAppWASM.png)
 
 But why did we check the ASP.NET Core hosted option?
 This tells the project that we want to have a Server Project in our solution. This is a better solution for handling security and API calls. 
@@ -33,7 +33,7 @@ This option offers the client the possibility of installing this Web app as a De
 
 Once you hit Create, you'll end up with a solution that looks something like this : 
 
-![image](/img/00-BlazorApp.png)
+![image](img/00-BlazorApp.png)
 
 Here's a definition of each project under your newly created solution : 
 - **MyDolibarrCustomerApp.Client**: This is the Blazor project. It contains the UI components for the app.
